@@ -1,6 +1,8 @@
-import os
 import random
 import time
+from jnpr.junos import Device
+from jnpr.junos.utils.config import Config
+from jnpr.junos.exception import ConnectError
 
 # Define the vSRX devices and their interfaces
 devices = {
@@ -26,39 +28,56 @@ devices = {
 username = "your_username"
 password = "your_password"
 
-def run_command_on_device(device_ip, command):
-    # Use os.system to execute SSH command (simple approach)
-    ssh_command = f'sshpass -p {password} ssh -o StrictHostKeyChecking=no {username}@{device_ip} "{command}"'
-    os.system(ssh_command)
+def connect_to_device(device_ip):
+    try:
+        dev = Device(host=device_ip, user=username, passwd=password)
+        dev.open()
+        return dev
+    except ConnectError as err:
+        print(f"Failed to connect to device {device_ip}: {err}")
+        return None
 
-def disable_interface(device_ip, interface):
-    print(f"Disabling {interface} on {device_ip}")
-    command = f"cli -c 'set interfaces {interface} disable; commit'"
-    run_command_on_device(device_ip, command)
+def disable_interface(device, interface):
+    print(f"Disabling {interface} on {device.hostname}")
+    with Config(device, mode='exclusive') as cu:
+        cu.load(f'set interfaces {interface} disable', format='set')
+        cu.commit()
 
-def enable_interface(device_ip, interface):
-    print(f"Enabling {interface} on {device_ip}")
-    command = f"cli -c 'delete interfaces {interface} disable; commit'"
-    run_command_on_device(device_ip, command)
+def enable_interface(device, interface):
+    print(f"Enabling {interface} on {device.hostname}")
+    with Config(device, mode='exclusive') as cu:
+        cu.load(f'delete interfaces {interface} disable', format='set')
+        cu.commit()
 
 def chaos_monkey():
     while True:
         # Randomly pick a device
         device_name = random.choice(list(devices.keys()))
-        device = devices[device_name]
-        device_ip = device["ip"]
+        device_info = devices[device_name]
+        device_ip = device_info["ip"]
 
-        # Randomly pick an interface to disable/enable
-        interface = random.choice(device["interfaces"])
+        # Connect to the device
+        dev = connect_to_device(device_ip)
+        if dev is None:
+            continue
 
-        # Randomly decide whether to disable or enable the interface
-        if random.choice([True, False]):
-            disable_interface(device_ip, interface)
-        else:
-            enable_interface(device_ip, interface)
+        try:
+            # Randomly pick an interface to disable/enable
+            interface = random.choice(device_info["interfaces"])
+
+            # Randomly decide whether to disable or enable the interface
+            if random.choice([True, False]):
+                disable_interface(dev, interface)
+            else:
+                enable_interface(dev, interface)
+
+        finally:
+            dev.close()
 
         # Wait for a random time before the next action
-        time.sleep(random.uniform(5, 15))
+        sleep_time = random.uniform(5, 15)
+        print(f"Sleeping for {sleep_time} seconds before the next action...")
+        time.sleep(sleep_time)
 
 if __name__ == "__main__":
     try:
