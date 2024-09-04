@@ -1,0 +1,30 @@
+credentials:
+  username: "your_username"
+  password: "your_password"
+
+devices:
+  vSRX1:
+    ip: "192.168.255.2"
+    interfaces:
+      - "ge-0/0/0"
+      - "ge-0/0/1"
+      - "ge-0/0/2"
+  vSRX2:
+    ip: "192.168.255.3"
+    interfaces:
+      - "ge-0/0/0"
+      - "ge-0/0/1"
+      - "ge-0/0/2"
+  vSRX3:
+    ip: "192.168.255.4"
+    interfaces:
+      - "ge-0/0/0"
+      - "ge-0/0/1"
+      - "ge-0/0/2"
+      - "ge-0/0/3"
+  vSRX4:
+    ip: "192.168.255.5"
+    interfaces:
+      - "ge-0/0/0"
+      - "ge-0/0/1"
+      - "ge-0/0/2"
