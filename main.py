@@ -1,9 +1,12 @@
+import sys
+# sys.path.append('/usr/local/lib/python3.12/dist-packages')
+
 import random
 import time
 import yaml
 from jnpr.junos import Device
 from jnpr.junos.utils.config import Config
-from jnpr.junos.exception import ConnectError
+from jnpr.junos.exception import ConnectError, ConfigLoadError
 
 # Load device configuration from YAML file
 def load_device_config(file_path='devices_config.yaml'):
@@ -19,8 +22,9 @@ changes = []
 
 def connect_to_device(device_ip):
     try:
-        dev = Device(host=device_ip, user=credentials['username'], passwd=credentials['password'])
+        dev = Device(host=device_ip, user=credentials['username'], pas>
         dev.open()
+        dev.facts_refresh()  # Ensure we refresh device facts after co>
         print(f"Successfully connected to device {device_ip}")
         return dev
     except ConnectError as err:
@@ -29,74 +33,98 @@ def connect_to_device(device_ip):
 
 def disable_interface(device, interface):
     print(f"Disabling {interface} on {device.hostname}")
-    with Config(device, mode='exclusive') as cu:
-        cu.load(f'set interfaces {interface} disable', format='set')
-        cu.commit()
-        print(f"Interface {interface} on {device.hostname} disabled")
-        changes.append((device.hostname, interface, "disable"))
+    try:
+        with Config(device, mode='exclusive') as cu:
+            cu.load(f'set interfaces {interface} disable', format='set>
+            cu.commit()
+            print(f"Interface {interface} on {device.hostname} disable>
+            changes.append((device.hostname, interface, "disable"))
+    except Exception as e:
+        print(f"Failed to disable {interface} on {device.hostname}: {e>
 
 def enable_interface(device, interface):
     print(f"Enabling {interface} on {device.hostname}")
-    with Config(device, mode='exclusive') as cu:
-        cu.load(f'delete interfaces {interface} disable', format='set')
-        cu.commit()
-        print(f"Interface {interface} on {device.hostname} enabled")
-        changes.append((device.hostname, interface, "enable"))
+    try:
+        with Config(device, mode='exclusive') as cu:
+            config = cu.rpc.get_config(filter_xml=f'<configuration><in>
+            if config.find('.//disable') is not None:
+                cu.load(f'delete interfaces {interface} disable', form>
+                cu.commit()
+                print(f"Interface {interface} on {device.hostname} ena>
+                changes.append((device.hostname, interface, "enable"))
+            else:
+                print(f"Interface {interface} on {device.hostname} is >
+    except Exception as e:
+        print(f"Failed to enable {interface} on {device.hostname}: {e}>
 
-def disable_all_interfaces(device):
+def disable_all_interfaces(device, device_info):
     print(f"Disabling all interfaces on {device.hostname}")
     with Config(device, mode='exclusive') as cu:
-        for interface in device.facts['ifd_style']:
-            cu.load(f'set interfaces {interface} disable', format='set')
+        for interface in device_info["interfaces"]:
+            cu.load(f'set interfaces {interface} disable', format='set>
             changes.append((device.hostname, interface, "disable"))
         cu.commit()
-        print(f"All interfaces on {device.hostname} disabled")
+        print(f"All listed interfaces on {device.hostname} disabled")
 
-def enable_all_interfaces(device):
+def enable_all_interfaces(device, device_info):
     print(f"Enabling all interfaces on {device.hostname}")
     with Config(device, mode='exclusive') as cu:
-        for interface in device.facts['ifd_style']:
-            cu.load(f'delete interfaces {interface} disable', format='set')
+        for interface in device_info["interfaces"]:
+            cu.load(f'delete interfaces {interface} disable', format='>
             changes.append((device.hostname, interface, "enable"))
         cu.commit()
-        print(f"All interfaces on {device.hostname} enabled")
+        print(f"All listed interfaces on {device.hostname} enabled")
 
 def inject_latency(device, interface, latency_ms):
-    print(f"Injecting {latency_ms}ms latency on {interface} of {device.hostname}")
-    with Config(device, mode='exclusive') as cu:
-        cu.load(f'set firewall family inet filter LATENCY term 1 from interface {interface}', format='set')
-        cu.load(f'set firewall family inet filter LATENCY term 1 then policer LATENCY_POLICER', format='set')
-        cu.load(f'set firewall policer LATENCY_POLICER if-exceeding bandwidth-limit {latency_ms}m burst-size-limit 10k', format='set')
-        cu.load(f'set firewall policer LATENCY_POLICER then delay {latency_ms}', format='set')
-        cu.commit()
-        print(f"Latency injected on {interface} of {device.hostname}")
-        changes.append((device.hostname, interface, "latency"))
-
+    print(f"Injecting {latency_ms}ms latency on {interface} of {device>
+    try:
+        with Config(device, mode='exclusive') as cu:
+            cu.load(f'set firewall family inet filter LATENCY term 1 f>
+            cu.load(f'set firewall family inet filter LATENCY term 1 t>
+            cu.load(f'set firewall policer LATENCY_POLICER if-exceedin>
+            cu.load(f'set firewall policer LATENCY_POLICER then loss-p>
+            cu.commit()
+            print(f"Latency injected on {interface} of {device.hostnam>
+            changes.append((device.hostname, interface, "latency"))
+    except Exception as e:
+        print(f"Failed to inject latency on {interface} of {device.hos>
 def remove_latency(device, interface):
     print(f"Removing latency on {interface} of {device.hostname}")
-    with Config(device, mode='exclusive') as cu:
-        cu.load(f'delete firewall family inet filter LATENCY term 1 from interface {interface}', format='set')
-        cu.load(f'delete firewall family inet filter LATENCY term 1 then policer LATENCY_POLICER', format='set')
-        cu.load(f'delete firewall policer LATENCY_POLICER', format='set')
-        cu.commit()
-        print(f"Latency removed on {interface} of {device.hostname}")
-        changes.append((device.hostname, interface, "latency_removed"))
+    try:
+        with Config(device, mode='exclusive') as cu:
+            cu.load(f'delete firewall family inet filter LATENCY term >
+            cu.load(f'delete firewall family inet filter LATENCY term >
+            cu.load(f'delete firewall policer LATENCY_POLICER', format>
+            cu.commit()
+            print(f"Latency removed on {interface} of {device.hostname>
+            changes.append((device.hostname, interface, "latency_remov>
+    except ConfigLoadError as e:
+        print(f"Failed to remove latency on {interface} of {device.hos>
+    except Exception as e:
+        print(f"Unexpected error when removing latency on {interface} >
 
 def create_network_surge(device, interface):
-    print(f"Creating network surge on {interface} of {device.hostname}")
-    with Config(device, mode='exclusive') as cu:
-        cu.load(f'set firewall policer SURGE_POLICER if-exceeding bandwidth-limit 1000m burst-size-limit 500k', format='set')
-        cu.load(f'set firewall policer SURGE_POLICER then discard', format='set')
-        cu.load(f'set firewall family inet filter SURGE term 1 from interface {interface}', format='set')
-        cu.load(f'set firewall family inet filter SURGE term 1 then policer SURGE_POLICER', format='set')
-        cu.commit()
-        print(f"Network surge created on {interface} of {device.hostname}")
-        changes.append((device.hostname, interface, "surge"))
+    print(f"Creating network surge on {interface} of {device.hostname}>
+    try:
+        with Config(device, mode='exclusive') as cu:
+            cu.load(f'set firewall policer SURGE_POLICER if-exceeding >
+            cu.load(f'set firewall policer SURGE_POLICER then discard'>
+            cu.load(f'set firewall family inet filter SURGE term 1 fro>
+            cu.load(f'set firewall family inet filter SURGE term 1 the>
+            cu.commit()
+            print(f"Network surge created on {interface} of {device.ho>
+            changes.append((device.hostname, interface, "surge"))
+    except Exception as e:
+        print(f"Failed to create network surge on {interface} of {devi>
 
 def cleanup():
-    print("Reverting changes to restore the network to its original state...")
+    print("Reverting changes to restore the network to its original st>
     for device_name, interface, action in reversed(changes):
-        dev = connect_to_device(devices[device_name]["ip"])
+        device_ip = devices.get(device_name, {}).get("ip")
+        if not device_ip:
+            print(f"Device {device_name} IP not found in config, skipp>
+            continue
+        dev = connect_to_device(device_ip)
         if dev is None:
             continue
         try:
@@ -107,22 +135,19 @@ def cleanup():
             elif action == "latency":
                 remove_latency(dev, interface)
             elif action == "latency_removed":
-                # Re-inject latency if it was removed during chaos
                 inject_latency(dev, interface, random.randint(50, 500))
             elif action == "surge":
-                # Clear the surge settings
                 with Config(dev, mode='exclusive') as cu:
-                    cu.load(f'delete firewall family inet filter SURGE term 1 from interface {interface}', format='set')
-                    cu.load(f'delete firewall policer SURGE_POLICER', format='set')
+                    cu.load(f'delete firewall family inet filter SURGE>
+                    cu.load(f'delete firewall policer SURGE_POLICER', >
                     cu.commit()
-                print(f"Network surge removed from {interface} of {device_name}")
+                print(f"Network surge removed from {interface} of {dev>
         finally:
             dev.close()
     print("Network restoration complete.")
 
 def chaos_monkey():
     while True:
-        # Randomly pick a device
         device_name = random.choice(list(devices.keys()))
         device_info = devices[device_name]
         device_ip = device_info["ip"]
@@ -133,30 +158,30 @@ def chaos_monkey():
             continue
 
         try:
-            # Randomly choose whether to target the entire device or a specific interface
+            # Randomly choose whether to target the entire device or a>
             target_type = random.choice(["device", "interface"])
 
             if target_type == "device":
                 # Randomly choose an action for the entire device
                 action = random.choice(["disable_all", "enable_all"])
                 if action == "disable_all":
-                    disable_all_interfaces(dev)
+                    disable_all_interfaces(dev, device_info)  # Pass d>
                 elif action == "enable_all":
-                    enable_all_interfaces(dev)
+                    enable_all_interfaces(dev, device_info)  # Pass de>
 
             elif target_type == "interface":
                 # Randomly pick an interface
                 interface = random.choice(device_info["interfaces"])
 
-                # Randomly choose an action: disable/enable interface, inject/remove latency, or create a surge
-                action = random.choice(["disable", "enable", "inject_latency", "remove_latency", "surge"])
+                # Randomly choose an action: disable/enable interface,>
+                action = random.choice(["disable", "enable", "inject_l>
                 
                 if action == "disable":
                     disable_interface(dev, interface)
                 elif action == "enable":
                     enable_interface(dev, interface)
                 elif action == "inject_latency":
-                    latency = random.randint(50, 500)  # Latency between 50ms and 500ms
+                    latency = random.randint(50, 500)  # Latency betwe>
                     inject_latency(dev, interface, latency)
                 elif action == "remove_latency":
                     remove_latency(dev, interface)
@@ -168,7 +193,7 @@ def chaos_monkey():
 
         # Wait for a random time before the next action
         sleep_time = random.uniform(5, 15)
-        print(f"Sleeping for {sleep_time} seconds before the next action...")
+        print(f"Sleeping for {sleep_time} seconds before the next acti>
         time.sleep(sleep_time)
 
 if __name__ == "__main__":
@@ -177,3 +202,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Chaos Monkey stopped")
         cleanup()
+
+
+
