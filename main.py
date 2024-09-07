@@ -56,6 +56,7 @@ def enable_interface(device, interface):
                 print(f"Interface {interface} on {device.hostname} is not disabled. Skipping.")
     except Exception as e:
         print(f"Failed to enable {interface} on {device.hostname}: {e}")
+        
 def disable_all_interfaces(device, device_info):
     print(f"Disabling all interfaces on {device.hostname}")
     with Config(device, mode='exclusive') as cu:
@@ -102,6 +103,7 @@ def remove_latency(device, interface):
         print(f"Failed to remove latency on {interface} of {device.hostname}: {e}")
     except Exception as e:
         print(f"Unexpected error when removing latency on {interface} of {device.hostname}: {e}")
+        
 def create_network_surge(device, interface):
     print(f"Creating network surge on {interface} of {device.hostname}")
     try:
