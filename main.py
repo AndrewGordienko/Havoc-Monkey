@@ -12,9 +12,10 @@ from jnpr.junos.exception import ConnectError, ConfigLoadError, LockError
 SLEEP_TIME_MIN = 5  # Minimum time between actions
 SLEEP_TIME_MAX = 15  # Maximum time between actions
 AVOID_INTERFACE = 'ge-0/0/0'  # Interface to avoid for any actions
+CONFIG_FILE_PATH = 'devices_config.yaml'  # Path to the YAML configuration file
 
 # Load device configuration from YAML file
-def load_device_config(file_path='devices_config.yaml'):
+def load_device_config(file_path=CONFIG_FILE_PATH):
     with open(file_path, 'r') as file:
         config = yaml.safe_load(file)
     return config['credentials'], config['devices']
