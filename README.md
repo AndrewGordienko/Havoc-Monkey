@@ -1,7 +1,7 @@
 
 # Chaos Monkey Network Tool
 
-**Chaos Monkey** is a robust network testing tool designed to simulate network disruptions and test the resilience of network infrastructure. Through randomized network interface toggling, latency injection, and network surges, Chaos Monkey ensures your systems are prepared for unexpected failures. Designed for virtual environments like vSRX routers, it provides powerful, automated stress testing in real-time.
+**Chaos Monkey** is a robust network testing tool designed to simulate network disruptions and test the resilience of network infrastructure. Through randomized network interface toggling, latency injection, and network surges, Chaos Monkey ensures your systems are prepared for unexpected failures. Designed for virtual environments like vSRX routers, it provides powerful, automated stress testing in real time.
 
 ---
 
@@ -24,20 +24,20 @@ Chaos Monkey randomly selects devices from your network configuration and perfor
 - **Inject Latency:** Adds artificial latency to simulate network delays on the interface.
 - **Create Network Surge:** Generates a surge of traffic on an interface to test how it handles high load.
 
-After performing these actions, the interface is restored, ensuring no lasting disruption. The tool repeats the process continuously until manually stopped.
+After performing these actions, the interface is restored, ensuring no lasting disruption. The tool repeats the process continuously until it is manually stopped.
 
 ---
 
 ## Installation
 
-Chaos Monkey requires Python 3.x and the Junos PyEZ library for communicating with network devices.
+Chaos Monkey requires Python 3.x and the Junos PyEZ library to communicate with network devices.
 
 ### From Source
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/chaos-monkey.git
+   git clone https://github.com/AndrewGordienko/chaos-monkey.git
    cd chaos-monkey
    ```
 
@@ -136,45 +136,6 @@ Upon pressing `Ctrl+C`, Chaos Monkey gracefully restores all modified interfaces
 
 ---
 
-## Installation & Running Tests
-
-To ensure the proper functioning of Chaos Monkey, you can run tests locally by following these steps:
-
-1. Install testing dependencies:
-
-   ```bash
-   python3 -m pip install -r requirements-test.txt
-   ```
-
-2. Run tests:
-
-   ```bash
-   python3 -m pytest tests/
-   ```
-
----
-
-## Contribution
-
-We welcome contributions to improve Chaos Monkey. To get your PR accepted:
-
-- **Focus on simplicity and readability**: Code should be easy to understand, with minimal complexity.
-- **Ensure quality**: Write tests for any new features or bug fixes.
-- **Avoid unnecessary changes**: Don’t submit whitespace or minor formatting changes unless they contribute meaningfully.
-
-For more details on contributing, refer to our `CONTRIBUTING.md` file.
-
----
-
-## Roadmap
-
-In future releases, we aim to:
-
-- Add more advanced latency and surge configurations.
-- Support for additional network device types and virtual environments.
-- Expand the functionality of network traffic patterns and stress testing.
-
----
 
 ## License
 
