@@ -46,8 +46,11 @@ Havoc Monkey requires Python 3.x and the Junos PyEZ library to communicate with 
    ```bash
    python3 -m pip install -r requirements.txt
    ```
+3. Troubleshooting:
 
-3. Create your configuration file:
+If you encounter issues related to missing libraries (e.g., Paramiko or Junos PyEZ), ensure that you are using the correct version of Python and that your system path is properly configured. You may need to install dependencies using pip or apt-get. Check out this helpful [Stack Overflow](https://stackoverflow.com/questions/28991319/ubuntu-python-no-module-named-paramiko) thread for more details on how to resolve common installation issues, especially when mixing Python environments.
+
+4. Create your configuration file:
 
    ```yaml
    # devices_config.yaml
@@ -83,7 +86,7 @@ Havoc Monkey requires Python 3.x and the Junos PyEZ library to communicate with 
          - "ge-0/0/2"
    ```
 
-4. Run Havoc Monkey:
+5. Run Havoc Monkey:
 
    ```bash
    python3 havoc_main.py
@@ -123,6 +126,31 @@ Here’s a quick example of Havoc Monkey in action:
 [ACTION] Enabling ge-0/0/2 on vSRX1
 [RESULT] ge-0/0/2 on vSRX1 enabled
 [WAIT] Sleeping for 9.21 seconds before the next action...
+
+[INFO] Connected to device 192.168.255.3
+[ACTION] Injecting 350ms latency on ge-0/0/0 of vSRX3
+[RESULT] Latency of 350ms injected on ge-0/0/0 of vSRX3
+[WAIT] Waiting for 10.75 seconds before removing latency from ge-0/0/0...
+[ACTION] Removing latency on ge-0/0/0 of vSRX3
+[RESULT] Latency removed from ge-0/0/0 of vSRX3
+[WAIT] Sleeping for 7.63 seconds before the next action...
+
+[INFO] Connected to device 192.168.255.4
+[ACTION] Creating network surge on ge-0/0/1 of vSRX4
+[RESULT] Network surge created on ge-0/0/1 of vSRX4
+[WAIT] Waiting for 15.32 seconds before removing surge from ge-0/0/1...
+[ACTION] Removing network surge on ge-0/0/1 of vSRX4
+[RESULT] Network surge removed from ge-0/0/1 of vSRX4
+[WAIT] Sleeping for 8.47 seconds before the next action...
+
+[INFO] Connected to device 192.168.255.2
+[ACTION] Disabling ge-0/0/3 on vSRX2
+[RESULT] ge-0/0/3 on vSRX2 disabled
+[WAIT] Waiting for 11.59 seconds before re-enabling ge-0/0/3...
+[ACTION] Enabling ge-0/0/3 on vSRX2
+[RESULT] ge-0/0/3 on vSRX2 enabled
+[WAIT] Sleeping for 5.92 seconds before the next action...
+
 ```
 
 Upon pressing `Ctrl+C`, Havoc Monkey gracefully restores all modified interfaces:
