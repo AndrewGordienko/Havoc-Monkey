@@ -37,8 +37,8 @@ Havoc Monkey requires Python 3.x and the Junos PyEZ library to communicate with 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/AndrewGordienko/chaos-monkey.git
-   cd chaos-monkey
+   git clone https://github.com/AndrewGordienko/havoc-monkey.git
+   cd havoc-monkey
    ```
 
 2. Install the required Python dependencies:
@@ -86,7 +86,7 @@ Havoc Monkey requires Python 3.x and the Junos PyEZ library to communicate with 
 4. Run Havoc Monkey:
 
    ```bash
-   python3 chaos_main.py
+   python3 havoc_main.py
    ```
 
 ---
