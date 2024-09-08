@@ -158,8 +158,21 @@ Upon pressing `Ctrl+C`, Havoc Monkey gracefully restores all modified interfaces
 ```python
 [INFO] Havoc Monkey stopped by user.
 [INFO] Enabling all modified interfaces...
+
 [ACTION] Re-enabling ge-0/0/2 on vSRX1
+[RESULT] ge-0/0/2 on vSRX1 enabled
+
+[ACTION] Removing latency on ge-0/0/0 of vSRX3
+[RESULT] Latency removed from ge-0/0/0 of vSRX3
+
+[ACTION] Removing network surge on ge-0/0/1 of vSRX4
+[RESULT] Network surge removed from ge-0/0/1 of vSRX4
+
+[ACTION] Re-enabling ge-0/0/3 on vSRX2
+[RESULT] ge-0/0/3 on vSRX2 enabled
+
 [INFO] All modified interfaces enabled.
+
 ```
 
 ---
