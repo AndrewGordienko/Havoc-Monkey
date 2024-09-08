@@ -126,7 +126,7 @@ def enable_modified_interfaces():
 
     print("[INFO] All modified interfaces enabled.")
 
-def chaos_monkey():
+def havoc_monkey():
     while True:
         # Randomly select a device and its IP
         device_name = random.choice(list(devices.keys()))
@@ -183,7 +183,7 @@ def chaos_monkey():
 
 if __name__ == "__main__":
     try:
-        chaos_monkey()
+        havoc_monkey()
     except KeyboardInterrupt:
-        print("\n[INFO] Chaos Monkey stopped by user.")
+        print("\n[INFO] Havoc Monkey stopped by user.")
         enable_modified_interfaces()
