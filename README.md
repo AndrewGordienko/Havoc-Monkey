@@ -168,6 +168,8 @@ ___
 - **Automated Traffic Scaling:** Scales traffic rates automatically based on the polynomial output, ensuring realistic traffic loads.
 - **Seamless iperf3 Integration:** Uses 'iperf3' to send UDP traffic, providing real-time feedback and easy network performance monitoring.
 
+___
+
 ## How It Works
 
 The `torix_simulation.py` script simulates traffic patterns based on Toronto's 24-hour traffic data. It performs the following actions:
