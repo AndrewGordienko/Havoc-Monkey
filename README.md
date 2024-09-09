@@ -193,23 +193,23 @@ Havoc Monkey requires iperf3 and the numpy library to send traffic between devic
 
 2. Install the required Python dependencies:
 
-```bash
-sudo apt-get install iperf3
-python3 -m pip install numpy
-```
+   ```bash
+   sudo apt-get install iperf3
+   python3 -m pip install numpy
+   ```
 
 3. Run iperf3 in server mode on the target device:
 
-```bash
-iperf3 -s
-```
+   ```bash
+   iperf3 -s
+   ```
 
 4. Run the simulation script on the client machine:
 
 
-```bash
-python3 torix_simulation.py
-```
+   ```bash
+   python3 torix_simulation.py
+   ```
 ___
 
 ## Configuration
@@ -221,7 +221,7 @@ Toronto IX Traffic Simulation is highly configurable through Python variables.
 You can modify the behavior of the Toronto IX Traffic Simulation by adjusting the following Python variables in the script:
 
 - **`Polynomial`:** Represents the polynomial equation modeling TORIX traffic over 24 hours.
-- **'ScalingFactor`:** Controls how much traffic is sent relative to the polynomial's output. A higher factor increases traffic rates.
+- **`ScalingFactor`:** Controls how much traffic is sent relative to the polynomial's output. A higher factor increases traffic rates.
 - **`TargetIP`:** Specifies the target server to which UDP traffic is sent.
 - **`SimulatedDayLengthSeconds`:** Defines the number of real-world seconds that represent a full 24-hour simulated traffic cycle. For example, setting this to 10 means a simulated day lasts for 10 real-world seconds.
 - **`SendInterval`:** Specifies how often traffic is sent (in seconds). For example, setting this to 1 means traffic is sent every second.
