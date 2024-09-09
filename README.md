@@ -170,7 +170,7 @@ ___
 
 ## How It Works
 
-The 'torix_simulation.py' script simulates traffic patterns based on Toronto's 24-hour traffic data. It performs the following actions:
+The `torix_simulation.py` script simulates traffic patterns based on Toronto's 24-hour traffic data. It performs the following actions:
 
 - **Generate Traffic Data:** Uses a polynomial equation to calculate traffic rates for different times of the day.
 - **Send UDP Traffic:** Utilizes the iperf3 library to send traffic between a client and server, with rates determined by the current time in the simulation.
@@ -184,28 +184,32 @@ ___
 
 Havoc Monkey requires iperf3 and the numpy library to send traffic between devices.
 
-1. Install `iperf3` and `numpy` on both the server and client machines.
+1. Clone the repository (if not done previously):
+
+   ```bash
+   git clone https://github.com/AndrewGordienko/havoc-monkey.git
+   cd havoc-monkey
+   ```
+
+2. Install the required Python dependencies:
 
 ```bash
 sudo apt-get install iperf3
 python3 -m pip install numpy
 ```
 
-2. Run iperf3 in server mode on the target device:
+3. Run iperf3 in server mode on the target device:
 
 ```bash
 iperf3 -s
 ```
 
-3. Run the simulation script on the client machine:
+4. Run the simulation script on the client machine:
 
 
 ```bash
 python3 torix_simulation.py
 ```
-
-This ensures that both `iperf3` and `numpy` are installed before running the simulation.
-
 ___
 
 ## Configuration
