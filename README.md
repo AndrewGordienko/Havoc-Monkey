@@ -161,19 +161,22 @@ The data and graph are based on traffic statistics provided by [TORIX](https://w
 
 ___
 
+## Features
+
+- **Realistic Traffic Modeling:** Simulates 24-hour traffic patterns using a polynomial equation to replicate TORIX traffic data, with added noise for variability.
+- **Customizable Simulation Speed:** Adjust the length of the simulated day to speed up or slow down the traffic generation cycle.
+- **Automated Traffic Scaling:** Scales traffic rates automatically based on the polynomial output, ensuring realistic traffic loads.
+- **Seamless iperf3 Integration:** Uses 'iperf3' to send UDP traffic, providing real-time feedback and easy network performance monitoring.
+
 ## How It Works
 
 The torix_simulation.py script generates traffic data using a polynomial representing Toronto's 24-hour traffic pattern. It uses the iperf3 library to simulate traffic between a client and a server, sending UDP traffic at rates determined by the polynomial at the current time of day.
 
 The traffic rate is scaled, and random fluctuations are added to mimic real-world variability. The length of a simulated day can be adjusted, allowing faster or slower simulation of a 24-hour traffic cycle.
 
-### Example Workflow:
-1. **Get Traffic Rate:** The `get_traffic_rate` function calculates traffic using the polynomial equation and adds some random noise.
-2. **Send Traffic:** The `send_traffic` function uses `iperf3` to send UDP traffic at the calculated rate to a target server.
-3. **Control Simulation Speed:** The simulated day length can be controlled by adjusting the `SimulatedDayLengthSeconds` variable.
 ___
 
-## Setting Up iperf3 on Linux Devices
+### Installation:
 
 1. Install `iperf3` and `numpy` on both the server and client machines.
 
@@ -219,6 +222,19 @@ The graph produced by my software, using a general polynomial with added noise, 
 
 <img width="600" alt="image" src="https://github.com/user-attachments/assets/ebb356b7-80d8-4824-9c23-8b7571fa58de">
 
+___
+
+## Configuration
+
+# Python variables
+
+You can modify the behavior of the Toronto IX Traffic Simulation by adjusting the following Python variables in the script:
+
+- **'Polynomial':** Represents the polynomial equation modeling TORIX traffic over 24 hours.
+- **'ScalingFactor':** Controls how much traffic is sent relative to the polynomial's output. A higher factor increases traffic rates.
+- **'TargetIP':** Specifies the target server to which UDP traffic is sent.
+- **'SimulatedDayLengthSeconds':** Defines the number of real-world seconds that represent a full 24-hour simulated traffic cycle. For example, setting this to 10 means a simulated day lasts for 10 real-world seconds.
+- **'SendInterval':** Specifies how often traffic is sent (in seconds). For example, setting this to 1 means traffic is sent every second.
 ___
 
 ## Example
@@ -281,7 +297,7 @@ Accepted connection from 100.67.31.243, port 58838
 [ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
 [  5]   0.00-1.00   sec  1020 MBytes  8.56 Gbits/sec  0.003 ms  219779/350364 (63%)  receiver
 ```
-
+___
 ## License
 
 Havoc Monkey and the Toronto IX traffic simulation are licensed under the MIT License.  See `LICENSE` for more details.
