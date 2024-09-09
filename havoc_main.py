@@ -1,5 +1,5 @@
 import sys
-# sys.path.append('/usr/local/lib/python3.12/dist-packages')
+# sys.path.append('/usr/local/lib/python3.12/dist-packages') # This line might be important in solving an install bug you get
 
 import random
 import time
@@ -62,47 +62,33 @@ def enable_interface(device, interface):
     except Exception as e:
         print(f"[ERROR] Failed to enable {interface} on {device.hostname}: {e}")
 
-def inject_latency(device, interface, latency_ms, device_name):
-    print(f"[ACTION] Injecting {latency_ms}ms latency on {interface} of {device.hostname}")
+def create_traffic_shaper(device, interface, bandwidth_limit, device_name):
+    print(f"[ACTION] Creating traffic shaper on {interface} of {device.hostname}")
     try:
         with Config(device, mode='exclusive') as cu:
-            cu.load(f'set firewall family inet filter LATENCY term 1 from interface {interface}', format='set')
-            cu.load(f'set firewall family inet filter LATENCY term 1 then policer LATENCY_POLICER', format='set')
-            cu.load(f'set firewall policer LATENCY_POLICER if-exceeding bandwidth-limit {latency_ms}m burst-size-limit 10k', format='set')
-            cu.load(f'set firewall policer LATENCY_POLICER then loss-priority low', format='set')
+            cu.load(f'set firewall family inet filter SHAPER term 1 from interface {interface}', format='set')
+            cu.load(f'set firewall family inet filter SHAPER term 1 then policer SHAPER_POLICER', format='set')
+            cu.load(f'set firewall policer SHAPER_POLICER if-exceeding bandwidth-limit {bandwidth_limit}m burst-size-limit 10k', format='set')
+            cu.load(f'set firewall policer SHAPER_POLICER then loss-priority low', format='set')
             cu.commit()
-            print(f"[RESULT] Latency of {latency_ms}ms injected on {interface} of {device.hostname}")
+            print(f"[RESULT] Traffic shaper created with {bandwidth_limit}Mbps limit on {interface} of {device.hostname}")
             modified_interfaces.append((device_name, interface))  # Use device_name, not device.hostname
     except Exception as e:
-        print(f"[ERROR] Failed to inject latency on {interface} of {device.hostname}: {e}")
+        print(f"[ERROR] Failed to create traffic shaper on {interface} of {device.hostname}: {e}")
 
-def remove_latency(device, interface):
-    print(f"[ACTION] Removing latency on {interface} of {device.hostname}")
+def remove_traffic_shaper(device, interface):
+    print(f"[ACTION] Removing traffic shaper on {interface} of {device.hostname}")
     try:
         with Config(device, mode='exclusive') as cu:
-            cu.load(f'delete firewall family inet filter LATENCY term 1 from interface {interface}', format='set')
-            cu.load(f'delete firewall family inet filter LATENCY term 1 then policer LATENCY_POLICER', format='set')
-            cu.load(f'delete firewall policer LATENCY_POLICER', format='set')
+            cu.load(f'delete firewall family inet filter SHAPER term 1 from interface {interface}', format='set')
+            cu.load(f'delete firewall family inet filter SHAPER term 1 then policer SHAPER_POLICER', format='set')
+            cu.load(f'delete firewall policer SHAPER_POLICER', format='set')
             cu.commit()
-            print(f"[RESULT] Latency removed from {interface} of {device.hostname}")
+            print(f"[RESULT] Traffic shaper removed from {interface} of {device.hostname}")
     except ConfigLoadError as e:
-        print(f"[ERROR] Failed to remove latency on {interface} of {device.hostname}: {e}")
+        print(f"[ERROR] Failed to remove traffic shaper on {interface} of {device.hostname}: {e}")
     except Exception as e:
-        print(f"[ERROR] Unexpected error when removing latency on {interface} of {device.hostname}: {e}")
-
-def create_network_surge(device, interface, device_name):
-    print(f"[ACTION] Creating network surge on {interface} of {device.hostname}")
-    try:
-        with Config(device, mode='exclusive') as cu:
-            cu.load(f'set firewall policer SURGE_POLICER if-exceeding bandwidth-limit 1000m burst-size-limit 500k', format='set')
-            cu.load(f'set firewall policer SURGE_POLICER then discard', format='set')
-            cu.load(f'set firewall family inet filter SURGE term 1 from interface {interface}', format='set')
-            cu.load(f'set firewall family inet filter SURGE term 1 then policer SURGE_POLICER', format='set')
-            cu.commit()
-            print(f"[RESULT] Network surge created on {interface} of {device.hostname}")
-            modified_interfaces.append((device_name, interface))  # Use device_name, not device.hostname
-    except Exception as e:
-        print(f"[ERROR] Failed to create network surge on {interface} of {device.hostname}: {e}")
+        print(f"[ERROR] Unexpected error when removing traffic shaper on {interface} of {device.hostname}: {e}")
 
 def enable_modified_interfaces():
     print("\n[INFO] Enabling all modified interfaces...")
@@ -150,27 +136,25 @@ def havoc_monkey():
             # Randomly select a `ge-` interface from the device, excluding the avoided one
             interface = random.choice(available_interfaces)
 
-            # Randomly choose an action: disable, inject latency, or create network surge
-            action = random.choice(["disable", "inject_latency", "create_surge"])
+            # Randomly choose an action: disable or create traffic shaper
+            action = random.choice(["disable", "create_traffic_shaper"])
 
             if action == "disable":
                 disable_interface(dev, interface, device_name)
-            elif action == "inject_latency":
-                latency = random.randint(50, 500)
-                inject_latency(dev, interface, latency, device_name)
-            elif action == "create_surge":
-                create_network_surge(dev, interface, device_name)
+            elif action == "create_traffic_shaper":
+                bandwidth_limit = random.randint(50, 500)
+                create_traffic_shaper(dev, interface, bandwidth_limit, device_name)
 
             # Wait for a random time (based on SLEEP_TIME_MIN and SLEEP_TIME_MAX)
             wait_time = random.uniform(SLEEP_TIME_MIN, SLEEP_TIME_MAX)
             print(f"[WAIT] Waiting for {wait_time:.2f} seconds before the next action...")
             time.sleep(wait_time)
 
-            # Re-enable the interface if it was disabled or latency removed
+            # Re-enable the interface if it was disabled or traffic shaper removed
             if action == "disable":
                 enable_interface(dev, interface)
-            elif action == "inject_latency":
-                remove_latency(dev, interface)
+            elif action == "create_traffic_shaper":
+                remove_traffic_shaper(dev, interface)
 
         finally:
             # Close the connection
