@@ -216,11 +216,11 @@ Toronto IX Traffic Simulation is highly configurable through Python variables.
 
 You can modify the behavior of the Toronto IX Traffic Simulation by adjusting the following Python variables in the script:
 
-- **'Polynomial':** Represents the polynomial equation modeling TORIX traffic over 24 hours.
-- **'ScalingFactor':** Controls how much traffic is sent relative to the polynomial's output. A higher factor increases traffic rates.
-- **'TargetIP':** Specifies the target server to which UDP traffic is sent.
-- **'SimulatedDayLengthSeconds':** Defines the number of real-world seconds that represent a full 24-hour simulated traffic cycle. For example, setting this to 10 means a simulated day lasts for 10 real-world seconds.
-- **'SendInterval':** Specifies how often traffic is sent (in seconds). For example, setting this to 1 means traffic is sent every second.
+- **`Polynomial`:** Represents the polynomial equation modeling TORIX traffic over 24 hours.
+- **'ScalingFactor`:** Controls how much traffic is sent relative to the polynomial's output. A higher factor increases traffic rates.
+- **`TargetIP`:** Specifies the target server to which UDP traffic is sent.
+- **`SimulatedDayLengthSeconds`:** Defines the number of real-world seconds that represent a full 24-hour simulated traffic cycle. For example, setting this to 10 means a simulated day lasts for 10 real-world seconds.
+- **`SendInterval`:** Specifies how often traffic is sent (in seconds). For example, setting this to 1 means traffic is sent every second.
 ___
 
 ## Example
