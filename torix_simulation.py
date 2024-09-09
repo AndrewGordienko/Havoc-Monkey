@@ -10,7 +10,7 @@ Polynomial = np.poly1d([2.58297002e-10, -3.21800750e-08, 1.70814458e-06, -5.0371
                         5.43893686e-01, -6.61274018e-01, 1.51700690e+00])
 
 ScalingFactor = 100  # Adjust traffic rate
-TargetIP = "100.67.31.243"
+TargetIP = "100.67.31.243" # Adjust IP to fit your network
 SimulatedDayLengthSeconds = 10  # Real-world seconds to simulate 24 hours of traffic
 SendInterval = 1  # Send traffic every 1 second
 
