@@ -14,6 +14,17 @@ TargetIP = "100.67.31.243" # Adjust IP to fit your network
 SimulatedDayLengthSeconds = 10  # Real-world seconds to simulate 24 hours of traffic
 SendInterval = 1  # Send traffic every 1 second
 
+# # Optional: Visualization of the polynomial (you can uncomment this if needed)
+# import matplotlib.pyplot as plt
+# plt.figure(figsize=(10, 6))
+# plt.plot(hours, traffic_rates, label="Traffic Polynomial", color='blue')
+# plt.title('Toronto Traffic Polynomial Over a Day', fontsize=14)
+# plt.xlabel('Time of Day (hours)', fontsize=12)
+# plt.ylabel('Traffic Rate', fontsize=12)
+# plt.grid(True)
+# plt.legend()
+# plt.show()
+
 def get_traffic_rate(current_second):
     current_hour = (current_second / 3600) * 24  # Convert seconds to hours in a day
     base_rate = Polynomial(current_hour)
